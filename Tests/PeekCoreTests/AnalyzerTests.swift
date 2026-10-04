@@ -102,6 +102,18 @@ final class AnalyzerTests: XCTestCase {
         XCTAssertLessThan(Double(column[s.rows - 5]), 255 * 0.3, "no energy near Nyquist")
     }
 
+    func testSpectrogramDoesNotCancelAntiPhaseStereo() throws {
+        let url = try write("anti-phase.wav", channels: 2, seconds: 4) { c, i in
+            let x = 0.5 * sin(2 * .pi * 1000 * Float(i) / 48_000)
+            return c == 0 ? x : -x
+        }
+        let s = try XCTUnwrap(try AudioAnalyzer().analyze(url: url).spectrogram)
+        let column = Array(s.values[(s.columns / 2 * s.rows)..<((s.columns / 2 + 1) * s.rows)])
+        let loudest = try XCTUnwrap(column.indices.max { column[$0] < column[$1] })
+        XCTAssertEqual(s.frequency(row: Double(loudest)), 1000, accuracy: 60)
+        XCTAssertGreaterThan(column[loudest], 220, "anti-phase stereo must remain visible in the spectrum")
+    }
+
     func testCancellationStopsTheAnalysis() throws {
         let url = try write("cancel.wav", channels: 2, seconds: 5) { _, i in sin(Float(i)) * 0.1 }
         XCTAssertThrowsError(try AudioAnalyzer().analyze(url: url, isCancelled: { true })) {
