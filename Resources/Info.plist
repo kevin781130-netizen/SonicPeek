@@ -5,23 +5,21 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>UTUVO Peek</string>
+	<string>SonicPeek</string>
 	<key>CFBundleExecutable</key>
-	<string>PeekHost</string>
-	<key>CFBundleIconFile</key>
-	<string>AppIcon</string>
+	<string>SonicPeek</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.utuvo.peek</string>
+	<string>com.kevin781130.sonicpeek</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>UTUVO Peek</string>
+	<string>SonicPeek</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.2.0</string>
+	<string>0.1.0</string>
 	<key>CFBundleVersion</key>
-	<string>4</string>
+	<string>1</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
