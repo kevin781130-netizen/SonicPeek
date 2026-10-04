@@ -1,0 +1,4 @@
+# credscan false positives (sha256 of file content)
+62a573dd986eb29c4f92f823dcdabcecc6c650a3c0b940bd2f56a5d49b2dfe34  # BS.1770 K-weighting constant looks like a card number
+e157b5486c45a415ac1dfa49fa42d47715235f08a6dfb3055b2c6474d07d21ab  # an iconset file name looks like an e-mail
+f507865b5d42cbb6c8a07eadb4f2cf5cdba4ea73b2fb366cac8825091dacabac  # tutorial video: random compressed bytes shaped like an address

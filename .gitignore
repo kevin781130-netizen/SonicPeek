@@ -1,0 +1,10 @@
+.build/
+.swiftpm/
+build/
+DerivedData/
+.DS_Store
+xcuserdata/
+Package.resolved
+.utuvo-public-export
+__pycache__/
+*.log
