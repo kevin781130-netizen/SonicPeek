@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 import PeekUI
 import PeekCore
 
-@main @MainActor final class PeekHostApp {
+@main @MainActor final class SonicPeekApp {
     static func main() {
         // Developer check: `SonicPeek --analyze <file>` prints the measurements as JSON.
         if let i = CommandLine.arguments.firstIndex(of: "--analyze") {
