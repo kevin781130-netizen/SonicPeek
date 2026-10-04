@@ -3,86 +3,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>UTUVO Peek</title>
-<meta name="description" content="Press Space on an audio file in Finder: loudness, true peak, 7.1.4 lanes and meters, BWF / iXML / ADM details. Free, open source macOS Quick Look.">
-<meta property="og:title" content="UTUVO Peek">
-<meta property="og:description" content="音檔在 Finder 按空白鍵：響度、True Peak、7.1.4 分軌表頭一次看完。Mac 免費開源。">
-<meta property="og:image" content="https://mickyyang-1407.github.io/utuvo-peek/poster.webp">
-<link rel="icon" href="icon.png">
+<title>SonicPeek — Audio QC in Finder</title>
+<meta name="description" content="SonicPeek is a native macOS Quick Look audio inspector for loudness, true peak, multichannel waveforms, spectrum and delivery metadata.">
+<meta property="og:title" content="SonicPeek">
+<meta property="og:description" content="在 Finder 按空白鍵，快速檢查響度、True Peak、多聲道波形、Spectrum 與交付 metadata。">
 <style>
-  :root { --bg:#0A0E16; --card:#151B27; --line:#263146; --text:#F3F6FA; --dim:#9AA6B8; --blue:#2F8BFF; --cyan:#5AC8FA; }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--text); font:17px/1.6 -apple-system, "PingFang TC", "Helvetica Neue", sans-serif; }
-  main { max-width:1040px; margin:0 auto; padding:48px 20px 64px; }
-  header { display:flex; align-items:center; gap:16px; }
-  header img { width:64px; height:64px; }
-  h1 { margin:0; font-size:30px; letter-spacing:.5px; }
-  .lead { font-size:clamp(26px, 4.4vw, 40px); font-weight:800; line-height:1.25; margin:28px 0 8px; }
-  .lead em { color:var(--cyan); font-style:normal; }
-  .sub { color:var(--dim); margin:0 0 24px; }
-  video { width:100%; aspect-ratio:16/9; border-radius:14px; background:#000; border:1px solid var(--line); display:block; }
-  .cta { display:flex; flex-wrap:wrap; gap:12px; margin:24px 0 8px; }
-  .btn { display:inline-block; padding:12px 22px; border-radius:12px; text-decoration:none; font-weight:700; color:#fff; background:var(--blue); }
-  .btn.ghost { background:transparent; border:1px solid var(--line); color:var(--text); }
-  .note { color:var(--dim); font-size:14px; }
-  ul { padding-left:20px; }
-  li { margin:6px 0; }
-  section { margin-top:40px; }
-  h2 { font-size:21px; margin:0 0 8px; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:28px; }
-  footer { margin-top:48px; color:var(--dim); font-size:14px; }
-  a { color:var(--cyan); }
+:root{--bg:#0A0E16;--card:#151B27;--line:#263146;--text:#F3F6FA;--dim:#9AA6B8;--blue:#2F8BFF;--cyan:#5AC8FA}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:17px/1.6 -apple-system,"PingFang TC","Helvetica Neue",sans-serif}
+main{max-width:1040px;margin:0 auto;padding:56px 20px 64px}h1{font-size:34px;margin:0}.lead{font-size:clamp(28px,4.5vw,44px);font-weight:800;line-height:1.2;margin:24px 0 10px}.lead em{color:var(--cyan);font-style:normal}.sub,.note{color:var(--dim)}
+.hero{width:100%;border-radius:14px;border:1px solid var(--line);margin-top:24px}.cta{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0}.btn{display:inline-block;padding:12px 22px;border-radius:12px;text-decoration:none;font-weight:700;color:#fff;background:var(--blue)}.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px}section{margin-top:40px}h2{font-size:21px}a{color:var(--cyan)}footer{margin-top:48px;color:var(--dim);font-size:14px}
 </style>
 </head>
-<body>
-<main>
-  <header><img src="icon.png" alt=""><h1>UTUVO Peek</h1></header>
-  <p class="lead">音檔在 Finder 按<em>空白鍵</em>，就能看、聽、量。</p>
-  <p class="sub">Press Space on an audio file in Finder: see it, hear it, measure it.</p>
-
-  <video controls preload="none" playsinline poster="poster.webp">
-    <source src="peek-tutorial.mp4" type="video/mp4">
-  </video>
-  <p class="note">教學影片 2:12（繁體中文旁白為 AI 語音；示範音檔為合成，表頭數值與 Finder 畫面為示意）</p>
-
-  <div class="cta">
-    <a class="btn" href="https://github.com/mickyyang-1407/utuvo-peek/releases/latest">下載 Download for Mac</a>
-    <a class="btn ghost" href="https://github.com/mickyyang-1407/utuvo-peek">原始碼 Source on GitHub</a>
-  </div>
-  <p class="note">免費・MIT 開源・Developer ID 簽章並經 Apple 公證・macOS 14 以上、Apple Silicon</p>
-
-  <div class="grid">
-    <section>
-      <h2>看得到什麼</h2>
-      <ul>
-        <li>響度：整合響度、True Peak（逐聲道）、響度範圍、Sample Peak；與 ffmpeg 交叉比對誤差 ≤ 0.1 LU</li>
-        <li>Waveform／Channels／Spectrum 三種顯示</li>
-        <li>最多 7.1.4 的分軌波形與即時表頭</li>
-        <li>多聲道播放：介面輸出夠就直出，耳機自動轉雙耳</li>
-        <li>BWF 時間碼、iXML、ADM、Dolby、RF64</li>
-        <li>不連網、不收資料，全部在你的 Mac 上計算</li>
-      </ul>
-    </section>
-    <section>
-      <h2>What it shows</h2>
-      <ul>
-        <li>Loudness: integrated, per-channel true peak, LRA and sample peak — within 0.1 LU of ffmpeg</li>
-        <li>Waveform, Channels and Spectrum views</li>
-        <li>Per-channel lanes and live meters up to 7.1.4</li>
-        <li>Multichannel playback: direct out, or binaural on headphones</li>
-        <li>BWF time reference, iXML, ADM, Dolby, RF64</li>
-        <li>No network, no analytics — everything runs on your Mac</li>
-      </ul>
-    </section>
-  </div>
-
-  <section>
-    <h2>安裝 Install</h2>
-    <p>把 UTUVO Peek 拖到「應用程式」，打開一次再關掉，然後在 Finder 選音檔按空白鍵。<br>
-    Drag UTUVO Peek to Applications, open it once, then press Space on an audio file in Finder.</p>
-  </section>
-
-  <footer>Made by <a href="https://utuvo.app">UTUVO</a> · MIT License</footer>
-</main>
-</body>
-</html>
+<body><main>
+<h1>SonicPeek</h1>
+<p class="lead">音檔在 Finder 按<em>空白鍵</em>，就能看、聽、量。</p>
+<p class="sub">Audio QC at a glance — loudness, true peak, multichannel meters, spectrum and delivery metadata.</p>
+<img class="hero" src="screenshots/dark-714-channels.webp" alt="SonicPeek multichannel audio preview">
+<div class="cta">
+<a class="btn" href="https://github.com/kevin781130-netizen/SonicPeek">Source on GitHub</a>
+<a class="btn ghost" href="https://github.com/kevin781130-netizen/SonicPeek#build-from-source">Build from source</a>
+</div>
+<p class="note">Early development · MIT · Apple Silicon · macOS 14+</p>
+<div class="grid">
+<section><h2>功能</h2><ul><li>Integrated Loudness、LRA、True Peak、Sample Peak</li><li>Waveform、逐聲道 Channels、Spectrum</li><li>最多 7.1.4 的多聲道顯示與播放</li><li>BWF、iXML、ADM、Dolby、RF64 metadata</li><li>Quick Look sandbox、本機分析</li></ul></section>
+<section><h2>Direction</h2><ul><li>Fast Finder-based audio QC</li><li>Phase / correlation checks</li><li>Delivery compliance validation</li><li>Stronger spectrum and conformance testing</li></ul></section>
+</div>
+<footer>SonicPeek is based on <a href="https://github.com/mickyyang-1407/utuvo-peek">UTUVO Peek</a> and remains available under the MIT License.</footer>
+</main></body></html>
