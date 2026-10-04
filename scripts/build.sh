@@ -3,8 +3,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="$ROOT/build"
 LOG="$OUT/logs"
-APP="$OUT/UTUVO Peek.app"
-EXT="$APP/Contents/PlugIns/UTUVOPeekPreview.appex"
+APP="$OUT/SonicPeek.app"
+EXT="$APP/Contents/PlugIns/SonicPeekPreview.appex"
 mkdir -p "$LOG" "$OUT/modules" "$APP/Contents/MacOS" "$EXT/Contents/MacOS"
 run() {
     local name="$1"; shift
@@ -25,15 +25,17 @@ run 04-ui swiftc "${FLAGS[@]}" -emit-library -static -emit-module -module-name P
     -o "$OUT/modules/libPeekUI.a" "$ROOT"/Sources/PeekUI/*.swift
 run 05-host swiftc "${FLAGS[@]}" -I "$OUT/modules" -module-name PeekApp \
     "$ROOT"/Sources/PeekApp/*.swift "$OUT/modules/libPeekUI.a" "$OUT/modules/libPeekCore.a" \
-    -o "$APP/Contents/MacOS/PeekHost"
+    -o "$APP/Contents/MacOS/SonicPeek"
 # Foundation exports NSExtensionMain. Use the standard extension linker
 # entry point, not an empty Swift main or invented C trampoline.
 run 06-extension swiftc "${FLAGS[@]}" -application-extension -I "$OUT/modules" -module-name PeekExtension \
     -Xlinker -e -Xlinker _NSExtensionMain \
     "$ROOT"/Sources/PeekExtension/*.swift "$OUT/modules/libPeekUI.a" "$OUT/modules/libPeekCore.a" \
-    -o "$EXT/Contents/MacOS/UTUVOPeekPreview"
+    -o "$EXT/Contents/MacOS/SonicPeekPreview"
 mkdir -p "$APP/Contents/Resources"
-cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
+if [[ -f "$ROOT/Resources/AppIcon.icns" ]]; then
+    cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
+fi
 # Pre-rendered Blender plates (scripts/blender/render_ui.sh); the preview only draws them.
 mkdir -p "$EXT/Contents/Resources"
 cp "$ROOT"/Resources/UI/*.png "$APP/Contents/Resources/"
