@@ -5,7 +5,7 @@ import PeekCore
 
 @main @MainActor final class PeekHostApp {
     static func main() {
-        // Developer check: `PeekHost --analyze <file>` prints the measurements as JSON.
+        // Developer check: `SonicPeek --analyze <file>` prints the measurements as JSON.
         if let i = CommandLine.arguments.firstIndex(of: "--analyze") {
             guard CommandLine.arguments.count == i + 2 else { exit(2) }
             do {
@@ -39,12 +39,12 @@ import PeekCore
         w.isReleasedWhenClosed = false; w.delegate = self
         w.minSize = NSSize(width: 560, height: 480)
         preview.openFileAction = { [weak self] in self?.openFile() }
-        w.title = "UTUVO Peek"; w.contentViewController = preview; window = w
+        w.title = "SonicPeek"; w.contentViewController = preview; window = w
         let args = CommandLine.arguments
         if let i = args.firstIndex(of: "--render-preview") {
             guard args.count == i + 3 else { exit(2) }
             preview.playbackAllowed = false
-            w.title = "UTUVO Peek — Sample audio"
+            w.title = "SonicPeek — Sample audio"
             request = Task {
                 do {
                     try await PreviewRenderer.render(preview, in: w,
@@ -122,7 +122,7 @@ import PeekCore
         let menu = NSMenu()
         let appItem = NSMenuItem(); menu.addItem(appItem)
         let appMenu = NSMenu(); appItem.submenu = appMenu
-        appMenu.addItem(withTitle: "Quit UTUVO Peek", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(withTitle: "Quit SonicPeek", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         let fileItem = NSMenuItem(); menu.addItem(fileItem)
         let fileMenu = NSMenu(title: "File"); fileItem.submenu = fileMenu
         let open = fileMenu.addItem(withTitle: "Open File…", action: #selector(openFile), keyEquivalent: "o")
