@@ -7,21 +7,21 @@ import PackageDescription
 //                   Quick Look extension and the host app's Open…
 //                   fallback, so the two always render identically).
 //   PeekExtension — Quick Look preview extension principal class.
-//                   Compiled into UTUVOPeekPreview.appex by
+//                   Compiled into SonicPeekPreview.appex by
 //                   scripts/build.sh (SwiftPM cannot emit .appex
 //                   bundles); entry point is Foundation's
 //                   NSExtensionMain via -Xlinker -e.
 //   PeekApp       — host app executable (normal window, Open…
 //                   fallback, --smoke-test).
 let package = Package(
-    name: "UTUVOPeek",
+    name: "SonicPeek",
     platforms: [
         .macOS(.v14)
     ],
     products: [
         .library(name: "PeekCore", targets: ["PeekCore"]),
         .library(name: "PeekUI", targets: ["PeekUI"]),
-        .executable(name: "PeekHost", targets: ["PeekApp"])
+        .executable(name: "SonicPeek", targets: ["PeekApp"])
     ],
     targets: [
         .target(
