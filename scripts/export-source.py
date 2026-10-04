@@ -21,7 +21,7 @@ target.mkdir(parents=True, exist_ok=True)
 ignore = shutil.ignore_patterns(".DS_Store", "__pycache__", "*.pyc", "*.blend1")
 for name in ("Sources", "Tests", "Resources"):
     shutil.copytree(root / name, target / name, dirs_exist_ok=True, ignore=ignore)
-for name in ("Package.swift", "LICENSE"):
+for name in ("Package.swift", "LICENSE", "NOTICE.md"):
     shutil.copy2(root / name, target / name)
 (target / "scripts").mkdir(exist_ok=True)
 for name in ("build.sh", "package-release.sh", "export-source.py"):
@@ -31,7 +31,7 @@ for name in ("blender", "icon"):
 for name in ("README.md", "README.zh-Hant.md"):
     shutil.copy2(root / "Public" / name, target / name)
 shutil.copytree(root / "Public" / "screenshots", target / "docs" / "screenshots", dirs_exist_ok=True, ignore=ignore)
-# GitHub Pages (main /docs): the tutorial page, a 720p web cut of the video (~5 MB) and its poster.
+# GitHub Pages (main /docs): public landing page and supporting assets.
 shutil.copytree(root / "Public" / "site", target / "docs", dirs_exist_ok=True, ignore=ignore)
 for stale in ("light-stereo-waveform.webp", "light-714-channels.webp"):
     (target / "docs" / "screenshots" / stale).unlink(missing_ok=True)
