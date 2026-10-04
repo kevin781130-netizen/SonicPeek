@@ -292,7 +292,9 @@ struct SpectrogramBuilder {
     private let maxHz: Double
     private var setup: FFTSetup?
     private var window = [Float](repeating: 0, count: SpectrogramBuilder.fftSize)
-    private var collect: [Float] = []
+    /// One FFT window per source channel. Keeping channels separate prevents phase
+    /// cancellation (for example L = +sine, R = -sine) from erasing the spectrum.
+    private var collect: [[Float]] = []
     private var collecting = -1
     private var nextColumn = 0
     private var position: Int64 = 0
@@ -320,17 +322,21 @@ struct SpectrogramBuilder {
                 if position + Int64(frames - i) <= start { position += Int64(frames - i); return }
                 if position < start { let skip = Int(start - position); i += skip; position += Int64(skip) }
                 collecting = nextColumn
-                collect.removeAll(keepingCapacity: true)
+                if collect.count != channels.count {
+                    collect = Array(repeating: [], count: channels.count)
+                    for c in collect.indices { collect[c].reserveCapacity(Self.fftSize) }
+                } else {
+                    for c in collect.indices { collect[c].removeAll(keepingCapacity: true) }
+                }
             }
-            let take = min(frames - i, Self.fftSize - collect.count)
-            for k in 0..<take {
-                var s: Float = 0
-                for c in channels.indices { s += channels[c][i + k] }
-                collect.append(s / Float(channels.count))
+            let collected = collect.first?.count ?? 0
+            let take = min(frames - i, Self.fftSize - collected)
+            for c in channels.indices {
+                for k in 0..<take { collect[c].append(channels[c][i + k]) }
             }
             i += take
             position += Int64(take)
-            if collect.count == Self.fftSize {
+            if (collect.first?.count ?? 0) == Self.fftSize {
                 emitColumn()
                 collecting = -1
                 nextColumn += 1
@@ -341,21 +347,30 @@ struct SpectrogramBuilder {
     private mutating func emitColumn() {
         guard let setup else { return }
         let n = Self.fftSize, half = n / 2
-        var windowed = [Float](repeating: 0, count: n)
-        vDSP_vmul(collect, 1, window, 1, &windowed, 1, vDSP_Length(n))
-        var real = [Float](repeating: 0, count: half), imag = [Float](repeating: 0, count: half)
         var mags = [Float](repeating: 0, count: half)
-        real.withUnsafeMutableBufferPointer { r in
-            imag.withUnsafeMutableBufferPointer { im in
-                var split = DSPSplitComplex(realp: r.baseAddress!, imagp: im.baseAddress!)
-                windowed.withUnsafeBufferPointer { w in
-                    w.baseAddress!.withMemoryRebound(to: DSPComplex.self, capacity: half) {
-                        vDSP_ctoz($0, 2, &split, 1, vDSP_Length(half))
+
+        // Transform each channel independently, then keep the strongest magnitude
+        // in every frequency bin. Magnitudes are phase-independent, so anti-phase
+        // stereo and other multichannel combinations cannot cancel before the FFT.
+        // Max-per-bin also preserves the dBFS calibration of an individual channel.
+        for channel in collect where channel.count == n {
+            var windowed = [Float](repeating: 0, count: n)
+            vDSP_vmul(channel, 1, window, 1, &windowed, 1, vDSP_Length(n))
+            var real = [Float](repeating: 0, count: half), imag = [Float](repeating: 0, count: half)
+            var channelMags = [Float](repeating: 0, count: half)
+            real.withUnsafeMutableBufferPointer { r in
+                imag.withUnsafeMutableBufferPointer { im in
+                    var split = DSPSplitComplex(realp: r.baseAddress!, imagp: im.baseAddress!)
+                    windowed.withUnsafeBufferPointer { w in
+                        w.baseAddress!.withMemoryRebound(to: DSPComplex.self, capacity: half) {
+                            vDSP_ctoz($0, 2, &split, 1, vDSP_Length(half))
+                        }
                     }
+                    vDSP_fft_zrip(setup, &split, 1, log2n, FFTDirection(FFT_FORWARD))
+                    vDSP_zvabs(&split, 1, &channelMags, 1, vDSP_Length(half))
                 }
-                vDSP_fft_zrip(setup, &split, 1, log2n, FFTDirection(FFT_FORWARD))
-                vDSP_zvabs(&split, 1, &mags, 1, vDSP_Length(half))
             }
+            for bin in 0..<half { mags[bin] = max(mags[bin], channelMags[bin]) }
         }
         // A sine of amplitude A peaks at A·Σw/2 in the DFT, and zrip scales by 2,
         // so a full-scale sine reads Σw.
